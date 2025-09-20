@@ -33,14 +33,22 @@ tag to tell browsers to render the gaps.
   <h4>List Tags</h4>
   <h5>Ordered List Tag</h5>
   How to make pancakes:
-  <ol id="wd-pancakes"> ... </ol>
-  My favorite recipe:
+  <ol id="wd-pancakes"> 
+  <li>In a bowl, whisk 1 cup flour, 1 tbsp sugar, 1 tsp baking powder, and a pinch of salt.</li>
+  <li>In another bowl, whisk 1 cup milk, 1 egg, and 2 tbsp melted butter.</li>
+  <li>Combine wet and dry ingredients, stirring gently until just mixed.</li>
+  <li>Heat a lightly buttered pan over medium heat.</li>
+  <li>Pour 1/4 cup batter for each pancake, cook until bubbles form, then flip and cook until golden.</li>
+  <li>Serve warm with butter and syrup.</li>
+  </ol>
+  My favorite recipe: Spagetthi
   <ol id="wd-your-favorite-recipe">
-    <li>Step 1: ... </li>
-    <li>Step 2: ... </li>
-    <li>Step 3: ... </li>
-    <li>Step 4: ... </li>
-    <li>Step 5: ... </li>
+  <li>Boil a large pot of salted water.</li>
+  <li>Add spaghetti and cook until al dente (about 8–10 minutes).</li>
+  <li>Drain the pasta, saving a little cooking water.</li>
+  <li>Heat olive oil in a pan, add garlic or sauce of choice.</li>
+  <li>Toss spaghetti with the sauce, adding a splash of pasta water if needed.</li>
+  <li>Serve hot with parmesan and fresh basil.</li>
   </ol>
   <h5>Unordered List Tag</h5>
 My favorite books (in no particular order)
@@ -53,11 +61,11 @@ My favorite books (in no particular order)
 </ul>
 Your favorite books (in no particular order)
 <ul id="wd-your-books">
-    <li>...</li>
-    <li>...</li>
-    <li>...</li>
-    <li>...</li>
-    <li>...</li>
+<li>To Kill a Mockingbird by Harper Lee</li>
+  <li> 1984 by George Orwell</li>
+  <li> Pride and Prejudice by Jane Austen</li>
+  <li> The Great Gatsby by F. Scott Fitzgerald</li>
+  <li> The Catcher in the Rye by J.D. Salinger</li>
 </ul>
       </div>
       <div id="wd-tables">
@@ -249,8 +257,12 @@ Your favorite books (in no particular order)
    <option value="SCIFI"  selected> Science Fiction </option>
    <option value="FANTASY">         Fantasy         </option>
 </select>
-<h4>Anchor tag</h4>
+<h4>Anchor tag </h4>
 Please <a href="https://www.lipsum.com" id="wd-lipsum">click here</a> to get dummy text<br/>
+<h4>GitHub tag</h4>
+<a href="https://github.com/riasingh125/CS4550-A1" id="wd-github" target="_blank">
+  View my GitHub Repository
+</a><br/>
       </div>
     </div>
   );
