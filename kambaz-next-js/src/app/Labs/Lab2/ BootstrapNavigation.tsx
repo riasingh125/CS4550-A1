@@ -6,7 +6,7 @@ import NavItem from "react-bootstrap/NavItem";
 import NavLink from "react-bootstrap/NavLink";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 export default function BootstrapNavigation() {
   return (
