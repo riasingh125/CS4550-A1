@@ -1,51 +1,81 @@
+"use client";
+
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Form, Button, Row, Col } from "react-bootstrap";
+import * as db from "../../../../Database"; // imports assignments.json
+
+interface Assignment {
+  _id: string;
+  title: string;
+  course: string;
+  description?: string;
+  dueDate?: string;
+  availableDate?: string;
+  points?: number;
+}
 
 export default function AssignmentEditor() {
+  const { cid, aid } = useParams<{ cid: string; aid: string }>();
+
+  const assignments: Assignment[] = db.assignments;
+
+  const assignment = assignments.find(
+    (a) => a._id === aid && a.course === cid
+  );
+
+  if (!assignment) {
+    return (
+      <div className="p-3 text-danger">
+        <h4>Assignment not found</h4>
+        <p>
+          No assignment with ID <strong>{aid}</strong> exists for course{" "}
+          <strong>{cid}</strong>.
+        </p>
+        <Link href={`/Courses/${cid}/Assignments`}>
+          <Button variant="secondary">Back to Assignments</Button>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div id="wd-assignments-editor" className="p-3">
       <Form>
-        {/* Assignment Name */}
         <div className="mb-3">
           <Form.Label htmlFor="wd-name">Assignment Name</Form.Label>
           <Form.Control
             id="wd-name"
             type="text"
-            defaultValue="A1 - ENV + HTML"
+            defaultValue={assignment.title}
           />
         </div>
 
-        {/* Description */}
         <div className="mb-3">
           <Form.Control
             id="wd-description"
             as="textarea"
             rows={6}
-            defaultValue={`The assignment is available online
-
-Submit a link to the landing page of your Web application running on Netlify.
-
-The landing page should include the following:
-• Your full name and section
-• Links to each of the lab assignments
-• Link to the Kanbaz application
-• Links to all relevant source code repositories
-
-The Kanbaz application should include a link to navigate back to the landing page.`}
+            defaultValue={
+              assignment.description ??
+              `This assignment is part of course ${cid}. Please follow all submission requirements.`
+            }
           />
         </div>
 
-        {/* Points */}
         <Row className="mb-3">
           <Form.Label column sm={3} htmlFor="wd-points" className="text-end">
             Points
           </Form.Label>
           <Col sm={9}>
-            <Form.Control id="wd-points" type="number" defaultValue={100} />
+            <Form.Control
+              id="wd-points"
+              type="number"
+              defaultValue={assignment.points ?? 100}
+            />
           </Col>
         </Row>
 
-        {/* Assignment Group */}
         <Row className="mb-3">
           <Form.Label column sm={3} htmlFor="wd-group" className="text-end">
             Assignment Group
@@ -60,9 +90,13 @@ The Kanbaz application should include a link to navigate back to the landing pag
           </Col>
         </Row>
 
-        {/* Display Grade as */}
         <Row className="mb-3">
-          <Form.Label column sm={3} htmlFor="wd-display-grade-as" className="text-end">
+          <Form.Label
+            column
+            sm={3}
+            htmlFor="wd-display-grade-as"
+            className="text-end"
+          >
             Display Grade as
           </Form.Label>
           <Col sm={9}>
@@ -75,14 +109,22 @@ The Kanbaz application should include a link to navigate back to the landing pag
           </Col>
         </Row>
 
-        {/* Submission Type */}
         <Row className="mb-3">
-          <Form.Label column sm={3} htmlFor="wd-submission-type" className="text-end">
+          <Form.Label
+            column
+            sm={3}
+            htmlFor="wd-submission-type"
+            className="text-end"
+          >
             Submission Type
           </Form.Label>
           <Col sm={9}>
             <div className="border rounded p-3">
-              <Form.Select id="wd-submission-type" defaultValue="Online" className="mb-3">
+              <Form.Select
+                id="wd-submission-type"
+                defaultValue="Online"
+                className="mb-3"
+              >
                 <option>Online</option>
                 <option>On Paper</option>
                 <option>No Submission</option>
@@ -125,7 +167,6 @@ The Kanbaz application should include a link to navigate back to the landing pag
           </Col>
         </Row>
 
-        {/* Assign */}
         <Row className="mb-3">
           <Form.Label column sm={3} className="text-end">
             Assign
@@ -147,20 +188,23 @@ The Kanbaz application should include a link to navigate back to the landing pag
               </Form.Label>
               <Form.Control
                 id="wd-due-date"
-                type="datetime-local"
-                defaultValue="2024-05-13T23:59"
+                type="text"
+                defaultValue={assignment.dueDate ?? "TBA"}
                 className="mb-3"
               />
 
               <Row>
                 <Col>
-                  <Form.Label htmlFor="wd-available-from" className="fw-bold">
+                  <Form.Label
+                    htmlFor="wd-available-from"
+                    className="fw-bold"
+                  >
                     Available from
                   </Form.Label>
                   <Form.Control
                     id="wd-available-from"
-                    type="datetime-local"
-                    defaultValue="2024-05-06T00:00"
+                    type="text"
+                    defaultValue={assignment.availableDate ?? "TBA"}
                   />
                 </Col>
                 <Col>
@@ -169,8 +213,8 @@ The Kanbaz application should include a link to navigate back to the landing pag
                   </Form.Label>
                   <Form.Control
                     id="wd-available-until"
-                    type="datetime-local"
-                    defaultValue="2024-05-20T23:59"
+                    type="text"
+                    defaultValue="TBA"
                   />
                 </Col>
               </Row>
@@ -178,15 +222,16 @@ The Kanbaz application should include a link to navigate back to the landing pag
           </Col>
         </Row>
 
-        {/* Action Buttons */}
         <hr />
         <div className="d-flex justify-content-end">
-          <Link href="/Courses/1234/Assignments">
+          <Link href={`/Courses/${cid}/Assignments`}>
             <Button variant="secondary" className="me-2">
               Cancel
             </Button>
           </Link>
-          <Button variant="danger">Save</Button>
+          <Link href={`/Courses/${cid}/Assignments`}>
+            <Button variant="danger">Save</Button>
+          </Link>
         </div>
       </Form>
     </div>

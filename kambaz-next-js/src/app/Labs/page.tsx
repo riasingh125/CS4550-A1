@@ -17,6 +17,16 @@ export default function Labs() {
          <Link href="/Labs/Lab3" id="wd-lab3-link">
            Lab 3: JavaScript Fundamentals </Link>
        </li>
+       <li>
+          <a
+            href="https://github.com/riasingh125/CS4550-A1"
+            id="wd-github"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub Repository
+          </a>
+        </li>
      </ul>
    </div>
 );}

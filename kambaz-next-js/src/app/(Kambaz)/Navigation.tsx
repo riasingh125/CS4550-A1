@@ -1,80 +1,42 @@
-"use client";
-
+"use client"
 import { AiOutlineDashboard } from "react-icons/ai";
 import { IoCalendarOutline } from "react-icons/io5";
 import { LiaBookSolid, LiaCogSolid } from "react-icons/lia";
 import { FaInbox, FaRegCircleUser } from "react-icons/fa6";
-import { ListGroup, ListGroupItem } from "react-bootstrap";
-import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
-
+import Link from "next/link";
+import { ListGroup, ListGroupItem } from "react-bootstrap";
 export default function KambazNavigation() {
   const pathname = usePathname();
-
   const links = [
-    { href: "/Account", label: "Account", icon: FaRegCircleUser, id: "wd-account-link", iconColor: "white" },
-    { href: "/Dashboard", label: "Dashboard", icon: AiOutlineDashboard, id: "wd-dashboard-link", iconColor: "danger" },
-    {  href: "/Courses/1234/Home", label: "Courses", icon: LiaBookSolid, id: "wd-course-link", iconColor: "danger" ,},
-    { href: "/Calendar", label: "Calendar", icon: IoCalendarOutline, id: "wd-calendar-link", iconColor: "danger" },
-    { href: "/Inbox", label: "Inbox", icon: FaInbox, id: "wd-inbox-link", iconColor: "danger" },
-    { href: "/Labs", label: "Labs", icon: LiaCogSolid, id: "wd-labs-link", iconColor: "danger" },
+    { label: "Dashboard", path: "/Dashboard", icon: AiOutlineDashboard },
+    { label: "Courses",   path: "/Dashboard", icon: LiaBookSolid },
+    { label: "Calendar",  path: "/Calendar",  icon: IoCalendarOutline },
+    { label: "Inbox",     path: "/Inbox",     icon: FaInbox },
+    { label: "Labs",      path: "/Labs",             icon: LiaCogSolid },
   ];
-
   return (
-    <ListGroup
-      className="rounded-0 position-fixed bottom-0 top-0 bg-black z-2"
-      style={{ width: 110 }}
-      id="wd-kambaz-navigation"
-    >
-      {/* Northeastern Link */}
-      <ListGroupItem
-        className="bg-black border-0 text-center"
-        as="a"
-        target="_blank"
-        href="https://www.northeastern.edu/"
-        id="wd-neu-link"
-      >
-        <Image
-          src="/images/NEU.png"
-          width={75}
-          height={75}
-          alt="Northeastern University"
-        />
+    <ListGroup id="wd-kambaz-navigation" style={{width: 120}}
+         className="rounded-0 position-fixed bottom-0 top-0 d-none d-md-block bg-black z-2">
+      <ListGroupItem id="wd-neu-link" target="_blank" href="https://www.northeastern.edu/"
+        action className="bg-black border-0 text-center">
+        <img src="/images/NEU.png" width="75px" /></ListGroupItem>
+      <ListGroupItem as={Link} href="/Account"
+        className={`text-center border-0 bg-black
+            ${pathname.includes("Account") ? "bg-white text-danger" : "bg-black text-white"}`}>
+        <FaRegCircleUser
+          className={`fs-1 ${pathname.includes("Account") ? "text-danger" : "text-white"}`} />
+        <br />
+        Account
       </ListGroupItem>
-
-      {/* Navigation Links */}
-      {links.map((link) => {
-        const isActive = pathname?.startsWith(link.href);
-        const IconComponent = link.icon;
-        
-        return (
-          <ListGroupItem
-            key={link.href}
-            className={`border-0 text-center ${isActive ? "bg-white" : "bg-black"}`}
-          >
-            <Link
-              href={link.href}
-              id={link.id}
-              className={`text-decoration-none ${
-                isActive ? "text-danger" : "text-white"
-              }`}
-            >
-              <IconComponent
-                className={`fs-1 ${
-                  isActive 
-                    ? "text-danger" 
-                    : link.iconColor === "white" 
-                    ? "text-white" 
-                    : "text-danger"
-                }`}
-              />
-              <br />
-              {link.label}
-            </Link>
-          </ListGroupItem>
-        );
-      })}
+      {links.map((link) => (
+        <ListGroupItem key={link.path} as={Link} href={link.path}
+          className={`bg-black text-center border-0
+              ${pathname.includes(link.label) ? "text-danger bg-white" : "text-white bg-black"}`}>
+          {link.icon({ className: "fs-1 text-danger"})}
+          <br />
+          {link.label}
+        </ListGroupItem>
+      ))}
     </ListGroup>
-  );
-}
+);}
