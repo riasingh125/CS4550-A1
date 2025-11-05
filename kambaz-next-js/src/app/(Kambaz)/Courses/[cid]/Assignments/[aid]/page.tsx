@@ -1,30 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Form, Button, Row, Col } from "react-bootstrap";
-import * as db from "../../../../Database"; // imports assignments.json
-
-interface Assignment {
-  _id: string;
-  title: string;
-  course: string;
-  description?: string;
-  dueDate?: string;
-  availableDate?: string;
-  points?: number;
-}
+import { useDispatch, useSelector } from "react-redux";
+import { addAssignment, updateAssignment } from "../../Assignments/reducer";
+import type { RootState } from "../../../../store";
 
 export default function AssignmentEditor() {
+  const router = useRouter();
+  const dispatch = useDispatch();
   const { cid, aid } = useParams<{ cid: string; aid: string }>();
+  const { assignments } = useSelector((state: RootState) => state.assignmentsReducer);
 
-  const assignments: Assignment[] = db.assignments;
+  const existing = assignments.find((a) => a._id === aid && a.course === cid);
+  const isNew = aid === "new";
 
-  const assignment = assignments.find(
-    (a) => a._id === aid && a.course === cid
-  );
+  // ⚙️ When user submits the form
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
 
-  if (!assignment) {
+    const assignmentData = {
+      title: formData.get("title") as string,
+      description: formData.get("description") as string,
+      points: Number(formData.get("points")),
+      dueDate: formData.get("dueDate") as string,
+      availableDate: formData.get("availableDate") as string,
+      availableUntil: formData.get("availableUntil") as string,
+      course: cid!,
+    };
+
+    if (isNew) {
+      dispatch(addAssignment(assignmentData));
+    } else {
+      dispatch(updateAssignment({ ...existing, ...assignmentData }));
+    }
+
+    router.push(`/Courses/${cid}/Assignments`);
+  };
+
+  // ⚠️ Invalid ID handling
+  if (!existing && !isNew) {
     return (
       <div className="p-3 text-danger">
         <h4>Assignment not found</h4>
@@ -39,199 +56,92 @@ export default function AssignmentEditor() {
     );
   }
 
+  // 🧱 Fallback for new assignment (empty defaults)
+  const assignment = existing || {
+    title: "",
+    description: "",
+    points: 100,
+    dueDate: "",
+    availableDate: "",
+    availableUntil: "",
+  };
+
   return (
     <div id="wd-assignments-editor" className="p-3">
-      <Form>
-        <div className="mb-3">
-          <Form.Label htmlFor="wd-name">Assignment Name</Form.Label>
+      <Form onSubmit={handleSubmit}>
+        {/* 📝 Title */}
+        <Form.Group className="mb-3">
+          <Form.Label>Assignment Name</Form.Label>
           <Form.Control
-            id="wd-name"
+            name="title"
             type="text"
             defaultValue={assignment.title}
+            required
           />
-        </div>
+        </Form.Group>
 
-        <div className="mb-3">
+        {/* 📄 Description */}
+        <Form.Group className="mb-3">
+          <Form.Label>Description</Form.Label>
           <Form.Control
-            id="wd-description"
+            name="description"
             as="textarea"
-            rows={6}
-            defaultValue={
-              assignment.description ??
-              `This assignment is part of course ${cid}. Please follow all submission requirements.`
-            }
+            rows={5}
+            defaultValue={assignment.description}
           />
-        </div>
+        </Form.Group>
 
+        {/* 💯 Points */}
+        <Form.Group className="mb-3">
+          <Form.Label>Points</Form.Label>
+          <Form.Control
+            name="points"
+            type="number"
+            defaultValue={assignment.points}
+          />
+        </Form.Group>
+
+        {/* 📅 Dates */}
         <Row className="mb-3">
-          <Form.Label column sm={3} htmlFor="wd-points" className="text-end">
-            Points
-          </Form.Label>
-          <Col sm={9}>
+          <Col>
+            <Form.Label>Due Date</Form.Label>
             <Form.Control
-              id="wd-points"
-              type="number"
-              defaultValue={assignment.points ?? 100}
+              name="dueDate"
+              type="date"
+              defaultValue={assignment.dueDate}
+            />
+          </Col>
+          <Col>
+            <Form.Label>Available From</Form.Label>
+            <Form.Control
+              name="availableDate"
+              type="date"
+              defaultValue={assignment.availableDate}
+            />
+          </Col>
+          <Col>
+            <Form.Label>Until</Form.Label>
+            <Form.Control
+              name="availableUntil"
+              type="date"
+              defaultValue={assignment.availableUntil}
             />
           </Col>
         </Row>
 
-        <Row className="mb-3">
-          <Form.Label column sm={3} htmlFor="wd-group" className="text-end">
-            Assignment Group
-          </Form.Label>
-          <Col sm={9}>
-            <Form.Select id="wd-group" defaultValue="ASSIGNMENTS">
-              <option value="ASSIGNMENTS">ASSIGNMENTS</option>
-              <option value="QUIZZES">QUIZZES</option>
-              <option value="EXAMS">EXAMS</option>
-              <option value="PROJECT">PROJECT</option>
-            </Form.Select>
-          </Col>
-        </Row>
-
-        <Row className="mb-3">
-          <Form.Label
-            column
-            sm={3}
-            htmlFor="wd-display-grade-as"
-            className="text-end"
-          >
-            Display Grade as
-          </Form.Label>
-          <Col sm={9}>
-            <Form.Select id="wd-display-grade-as" defaultValue="Percentage">
-              <option>Percentage</option>
-              <option>Points</option>
-              <option>Complete/Incomplete</option>
-              <option>Letter Grade</option>
-            </Form.Select>
-          </Col>
-        </Row>
-
-        <Row className="mb-3">
-          <Form.Label
-            column
-            sm={3}
-            htmlFor="wd-submission-type"
-            className="text-end"
-          >
-            Submission Type
-          </Form.Label>
-          <Col sm={9}>
-            <div className="border rounded p-3">
-              <Form.Select
-                id="wd-submission-type"
-                defaultValue="Online"
-                className="mb-3"
-              >
-                <option>Online</option>
-                <option>On Paper</option>
-                <option>No Submission</option>
-              </Form.Select>
-
-              <div>
-                <Form.Label className="fw-bold">Online Entry Options</Form.Label>
-                <Form.Check
-                  type="checkbox"
-                  id="wd-text-entry"
-                  label="Text Entry"
-                  className="mb-2"
-                />
-                <Form.Check
-                  type="checkbox"
-                  id="wd-website-url"
-                  label="Website URL"
-                  className="mb-2"
-                  defaultChecked
-                />
-                <Form.Check
-                  type="checkbox"
-                  id="wd-media-recordings"
-                  label="Media Recordings"
-                  className="mb-2"
-                />
-                <Form.Check
-                  type="checkbox"
-                  id="wd-student-annotation"
-                  label="Student Annotation"
-                  className="mb-2"
-                />
-                <Form.Check
-                  type="checkbox"
-                  id="wd-file-upload"
-                  label="File Uploads"
-                />
-              </div>
-            </div>
-          </Col>
-        </Row>
-
-        <Row className="mb-3">
-          <Form.Label column sm={3} className="text-end">
-            Assign
-          </Form.Label>
-          <Col sm={9}>
-            <div className="border rounded p-3">
-              <Form.Label htmlFor="wd-assign-to" className="fw-bold">
-                Assign to
-              </Form.Label>
-              <Form.Control
-                id="wd-assign-to"
-                type="text"
-                defaultValue="Everyone"
-                className="mb-3"
-              />
-
-              <Form.Label htmlFor="wd-due-date" className="fw-bold">
-                Due
-              </Form.Label>
-              <Form.Control
-                id="wd-due-date"
-                type="text"
-                defaultValue={assignment.dueDate ?? "TBA"}
-                className="mb-3"
-              />
-
-              <Row>
-                <Col>
-                  <Form.Label
-                    htmlFor="wd-available-from"
-                    className="fw-bold"
-                  >
-                    Available from
-                  </Form.Label>
-                  <Form.Control
-                    id="wd-available-from"
-                    type="text"
-                    defaultValue={assignment.availableDate ?? "TBA"}
-                  />
-                </Col>
-                <Col>
-                  <Form.Label htmlFor="wd-available-until" className="fw-bold">
-                    Until
-                  </Form.Label>
-                  <Form.Control
-                    id="wd-available-until"
-                    type="text"
-                    defaultValue="TBA"
-                  />
-                </Col>
-              </Row>
-            </div>
-          </Col>
-        </Row>
-
         <hr />
+        {/* ✅ Buttons */}
         <div className="d-flex justify-content-end">
-          <Link href={`/Courses/${cid}/Assignments`}>
-            <Button variant="secondary" className="me-2">
-              Cancel
-            </Button>
-          </Link>
-          <Link href={`/Courses/${cid}/Assignments`}>
-            <Button variant="danger">Save</Button>
-          </Link>
+          <Button
+            variant="secondary"
+            className="me-2"
+            onClick={() => router.push(`/Courses/${cid}/Assignments`)}
+          >
+            Cancel
+          </Button>
+          <Button variant="danger" type="submit">
+            Save
+          </Button>
         </div>
       </Form>
     </div>
