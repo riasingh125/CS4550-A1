@@ -1,7 +1,9 @@
+"use client";
 import HelloRedux from "./HelloRedux";
 import CounterRedux from "./CounterRedux";
 import AddRedux from "./AddRedux";
 import TodoList from "./todos/TodoList";
+import store from "../store";
 export default function ReduxExamples() {
     return(
       <div>
