@@ -1,157 +1,103 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Button, Form, InputGroup, ListGroup, Modal } from "react-bootstrap";
 import { FaSearch, FaPlus, FaRegEdit, FaTrash } from "react-icons/fa";
 import { BsGripVertical, BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdArrowDropdown } from "react-icons/io";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../../store";
-import { useState } from "react";
-import { deleteAssignment } from "../Assignments/reducer";
+
+import { setAssignments, deleteAssignment as deleteRedux } from "./reducer";
+import * as client from "./client";
 
 export default function Assignments() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { cid } = useParams<{ cid: string }>();
+
   const { assignments } = useSelector(
     (state: RootState) => state.assignmentsReducer
-  ) as { assignments: Assignment[] };
+  );
 
-  interface Assignment {
-    _id: string;
-    title: string;
-    course: string;
-    dueDate?: string;
-    points?: number;
-    description?: string;
-  }
+  useEffect(() => {
+    const load = async () => {
+      const data = await client.findAssignmentsForCourse(cid!);
+      dispatch(setAssignments(data));
+    };
+    load();
+  }, [cid]);
 
-  // Filter assignments for this course
-  const courseAssignments = assignments.filter((a) => a.course === cid);
-
-  // State for delete confirmation dialog
   const [showDelete, setShowDelete] = useState(false);
-  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
+  const [selected, setSelected] = useState<any>(null);
 
-  const handleDeleteClick = (assignment: Assignment) => {
-    setSelectedAssignment(assignment);
-    setShowDelete(true);
-  };
-
-  const confirmDelete = () => {
-    if (selectedAssignment) {
-      dispatch(deleteAssignment(selectedAssignment._id));
-    }
+  const confirmDelete = async () => {
+    await client.deleteAssignment(selected._id);
+    dispatch(deleteRedux(selected._id));
     setShowDelete(false);
-    setSelectedAssignment(null);
   };
 
-  const cancelDelete = () => {
-    setShowDelete(false);
-    setSelectedAssignment(null);
-  };
+  const courseAssignments = assignments.filter((a) => a.course === cid);
 
   return (
     <div id="wd-assignments" className="p-3">
-      {/* Header controls */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <InputGroup style={{ width: "300px" }}>
-          <InputGroup.Text className="bg-white">
-            <FaSearch />
-          </InputGroup.Text>
-          <Form.Control type="text" placeholder="Search for Assignments" />
+      {/* TOP CONTROLS */}
+      <div className="d-flex justify-content-between mb-3">
+        <InputGroup style={{ width: 300 }}>
+          <InputGroup.Text><FaSearch /></InputGroup.Text>
+          <Form.Control placeholder="Search" />
         </InputGroup>
 
-        <div>
-          <Button variant="secondary" className="me-2">
-            <FaPlus className="me-1" /> Group
-          </Button>
-          <Button
-            variant="danger"
-            id="wd-add-assignment"
-            onClick={() => router.push(`/Courses/${cid}/Assignments/new`)}
-          >
-            <FaPlus className="me-1" /> Assignment
-          </Button>
-        </div>
+        <Button
+          variant="danger"
+          onClick={() => router.push(`/Courses/${cid}/Assignments/new`)}
+        >
+          <FaPlus /> Assignment
+        </Button>
       </div>
 
-      {/* Assignments List */}
-      <div className="border rounded mb-3">
-        <div className="d-flex justify-content-between align-items-center p-3">
+      {/* LIST */}
+      <div className="border rounded">
+        <div className="d-flex justify-content-between p-3">
           <div>
-            <BsGripVertical className="me-2 fs-4" />
+            <BsGripVertical className="me-2" />
             <IoMdArrowDropdown className="me-2" />
             <strong>ASSIGNMENTS</strong>
           </div>
-          <div>
-            <span className="border rounded px-2 py-1 me-2">40% of Total</span>
-            <FaPlus className="me-3" />
-            <BsThreeDotsVertical />
-          </div>
+          <BsThreeDotsVertical />
         </div>
 
-        <ListGroup className="mt-0" style={{ borderLeft: "4px solid green" }}>
+        <ListGroup>
           {courseAssignments.map((a) => (
-            <ListGroup.Item key={a._id} className="d-flex align-items-start justify-content-between">
-              <div className="d-flex align-items-start">
-                <BsGripVertical className="me-2 fs-4 mt-1" />
-                <FaRegEdit className="me-3 fs-4 mt-1 text-success" />
+            <ListGroup.Item key={a._id} className="d-flex justify-content-between">
+              <div className="d-flex">
+                <BsGripVertical className="me-2" />
+                <FaRegEdit className="text-success me-3" />
                 <div>
-                  <Link
-                    href={`/Courses/${cid}/Assignments/${a._id}`}
-                    className="text-decoration-none text-dark fw-bold"
-                  >
-                    {a.title}
-                  </Link>
-                  <div className="small text-muted mb-1">
-                    <strong>Due</strong> {a.dueDate ?? "TBA"} | {a.points ?? 100} pts
+                  <Link href={`/Courses/${cid}/Assignments/${a._id}`}>{a.title}</Link>
+                  <div className="small text-muted">
+                    Due {a.dueDate ?? "TBA"} | {a.points ?? 100} pts
                   </div>
-                  {a.description && (
-                    <div className="text-muted small" style={{ whiteSpace: "pre-wrap" }}>
-                      {a.description}
-                    </div>
-                  )}
                 </div>
               </div>
-
-              {/* 🗑️ Delete button */}
-              <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={() => handleDeleteClick(a)}
-              >
+              <Button variant="outline-danger" size="sm" onClick={() => { setSelected(a); setShowDelete(true); }}>
                 <FaTrash />
               </Button>
             </ListGroup.Item>
           ))}
-
-          {courseAssignments.length === 0 && (
-            <ListGroup.Item className="text-muted">
-              No assignments available for this course.
-            </ListGroup.Item>
-          )}
         </ListGroup>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <Modal show={showDelete} onHide={cancelDelete} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Delete Assignment</Modal.Title>
-        </Modal.Header>
+      <Modal show={showDelete} onHide={() => setShowDelete(false)} centered>
+        <Modal.Header closeButton><Modal.Title>Delete Assignment</Modal.Title></Modal.Header>
         <Modal.Body>
-          Are you sure you want to remove{" "}
-          <strong>{selectedAssignment?.title}</strong>?
+          Are you sure you want to delete <strong>{selected?.title}</strong>?
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={cancelDelete}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={confirmDelete}>
-            Delete
-          </Button>
+          <Button onClick={() => setShowDelete(false)}>Cancel</Button>
+          <Button variant="danger" onClick={confirmDelete}>Delete</Button>
         </Modal.Footer>
       </Modal>
     </div>
