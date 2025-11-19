@@ -9,6 +9,7 @@ import cors from "cors";
 import CourseRoutes from "./Kambaz/Courses/routes.js";
 import AssignmentRoutes from "./Kambaz/Assignments/routes.js";
 import EnrollmentsRoutes from "./Kambaz/Enrollments/routes.js";
+import ModulesRoutes from "./Kambaz/Modules/routes.js";
 const app = express();
 app.use(
     cors({
@@ -39,6 +40,7 @@ UserRoutes(app, db);
 CourseRoutes(app, db);
 Lab5(app)
 Hello(app)
-AssignmentRoutes(app);
+AssignmentRoutes(app, db);
 EnrollmentsRoutes(app, db);
+ModulesRoutes(app, db);
 app.listen(process.env.PORT || 4000)

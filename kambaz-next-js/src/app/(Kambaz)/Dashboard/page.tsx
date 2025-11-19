@@ -40,6 +40,13 @@ export default function Dashboard() {
     (state: RootState) => state.accountReducer
   ) as { currentUser: { _id: string } | null };
 
+  const userRole = (currentUser as any)?.role;
+  const isStudent = userRole === "STUDENT";
+  const isFaculty = userRole === "FACULTY";
+  const isAdmin = userRole === "ADMIN";
+  const isFacultyOrAdmin = isFaculty || isAdmin;
+
+
   const [course, setCourse] = useState({
     _id: "",
     name: "",
@@ -153,46 +160,47 @@ export default function Dashboard() {
 
       <hr />
 
-      {currentUser && (
-        <>
-          <h5>
-            New Course
-            <button
-              onClick={onAddNewCourse}
-              className="btn btn-primary float-end"
-              id="wd-add-new-course-click"
-            >
-              Add
-            </button>
-          </h5>
+      {isFacultyOrAdmin && (
+  <>
+    <h5>
+      New Course
+      <button
+        onClick={onAddNewCourse}
+        className="btn btn-primary float-end"
+        id="wd-add-new-course-click"
+      >
+        Add
+      </button>
+    </h5>
 
-          <button
-            onClick={onUpdateCourse}
-            className="btn btn-secondary float-end"
-            id="wd-update-course-click"
-          >
-            Update
-          </button>
+    <button
+      onClick={onUpdateCourse}
+      className="btn btn-secondary float-end"
+      id="wd-update-course-click"
+    >
+      Update
+    </button>
 
-          <br />
-          <FormControl
-            value={course.name}
-            className="mb-2"
-            placeholder="Course Name"
-            onChange={(e) => setCourse({ ...course, name: e.target.value })}
-          />
-          <FormControl
-            as="textarea"
-            rows={3}
-            value={course.description}
-            placeholder="Course Description"
-            onChange={(e) =>
-              setCourse({ ...course, description: e.target.value })
-            }
-          />
-          <hr />
-        </>
-      )}
+    <br />
+    <FormControl
+      value={course.name}
+      className="mb-2"
+      placeholder="Course Name"
+      onChange={(e) => setCourse({ ...course, name: e.target.value })}
+    />
+    <FormControl
+      as="textarea"
+      rows={3}
+      value={course.description}
+      placeholder="Course Description"
+      onChange={(e) =>
+        setCourse({ ...course, description: e.target.value })
+      }
+    />
+    <hr />
+  </>
+)}
+
 
       <h2 id="wd-dashboard-published">
         {visibleCourses.length > 0
@@ -233,56 +241,84 @@ export default function Dashboard() {
                       {course.description}
                     </CardText>
 
-                    {currentUser && (
-                      <>
-                        {isUserEnrolled(course._id) ? (
-                          <Button
-                            variant="danger"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleEnrollToggle(course._id);
-                            }}
-                          >
-                            Unenroll
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="success"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleEnrollToggle(course._id);
-                            }}
-                          >
-                            Enroll
-                          </Button>
-                        )}
-                      </>
-                    )}
+                    {/* STUDENT View */}
+{isStudent && (
+  <>
+    {isUserEnrolled(course._id) ? (
+      <Button
+        variant="danger"
+        onClick={(e) => {
+          e.preventDefault();
+          handleEnrollToggle(course._id);
+        }}
+      >
+        Unenroll
+      </Button>
+    ) : (
+      <Button
+        variant="success"
+        onClick={(e) => {
+          e.preventDefault();
+          handleEnrollToggle(course._id);
+        }}
+      >
+        Enroll
+      </Button>
+    )}
 
-                    <Button variant="primary" className="me-2">
-                      Go
-                    </Button>
+    <Button
+      variant="primary"
+      className="me-2"
+      onClick={(e) => {
+        e.preventDefault();
+        if (isUserEnrolled(course._id)) {
+          window.location.href = `/Courses/${course._id}/Home`;
+        } else {
+          alert("You must enroll to access the course.");
+        }
+      }}
+    >
+      Go
+    </Button>
+  </>
+)}
 
-                    <button
-                      className="btn btn-danger"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        onDeleteCourse(course._id);
-                      }}
-                    >
-                      Delete
-                    </button>
+{/* FACULTY / ADMIN View */}
+{isFacultyOrAdmin && (
+  <>
+    <Button
+      variant="primary"
+      className="me-2"
+      onClick={(e) => {
+        e.preventDefault();
+        window.location.href = `/Courses/${course._id}/Home`;
+      }}
+    >
+      Go
+    </Button>
 
-                    <button
-                      id="wd-edit-course-click"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        handleEdit(course);
-                      }}
-                      className="btn btn-warning me-2 float-end"
-                    >
-                      Edit
-                    </button>
+    <button
+      className="btn btn-danger"
+      onClick={(e) => {
+        e.preventDefault();
+        onDeleteCourse(course._id);
+      }}
+    >
+      Delete
+    </button>
+
+    <button
+      className="btn btn-warning me-2 float-end"
+      onClick={(e) => {
+        e.preventDefault();
+        handleEdit(course);
+      }}
+    >
+      Edit
+    </button>
+  </>
+)}
+
                   </CardBody>
                 </Link>
               </Card>

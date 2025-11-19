@@ -3,10 +3,11 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, Form, Row, Col } from "react-bootstrap";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { addAssignment, updateAssignment, setAssignments } from "../reducer";
 import * as client from "../client";
+import { RootState } from "@/app/(Kambaz)/store";
 
 export default function AssignmentEditor() {
   const router = useRouter();
@@ -14,6 +15,12 @@ export default function AssignmentEditor() {
   const { cid, aid } = useParams<{ cid: string; aid: string }>();
 
   const isNew = aid === "new";
+
+  const currentUser = useSelector(
+    (state: RootState) => state.accountReducer.currentUser as { role: string } | null
+  );
+  const isFaculty =
+    currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
 
   const [assignment, setAssignment] = useState<any>({
     title: "",
@@ -50,6 +57,11 @@ export default function AssignmentEditor() {
 
     router.push(`/Courses/${cid}/Assignments`);
   };
+
+  if (!isFaculty) {
+    router.push(`/Courses/${cid}/Assignments`);
+    return null;
+  }
 
   return (
     <div className="p-3">

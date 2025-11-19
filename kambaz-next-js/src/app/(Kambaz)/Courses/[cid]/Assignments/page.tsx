@@ -22,6 +22,14 @@ export default function Assignments() {
     (state: RootState) => state.assignmentsReducer
   );
 
+  const currentUser = useSelector(
+    (state: RootState) => state.accountReducer.currentUser as { role: string } | null
+  );
+  const isFaculty =
+    currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
+
+  console.log("Current UserRRRRRRRR:", currentUser);
+
   useEffect(() => {
     const load = async () => {
       const data = await client.findAssignmentsForCourse(cid!);
@@ -39,6 +47,8 @@ export default function Assignments() {
     setShowDelete(false);
   };
 
+  console.log("IS FACULTY:", isFaculty);
+
   const courseAssignments = assignments.filter((a) => a.course === cid);
 
   return (
@@ -50,12 +60,17 @@ export default function Assignments() {
           <Form.Control placeholder="Search" />
         </InputGroup>
 
-        <Button
-          variant="danger"
-          onClick={() => router.push(`/Courses/${cid}/Assignments/new`)}
-        >
-          <FaPlus /> Assignment
-        </Button>
+        
+
+        {isFaculty && (
+                <Button
+                  variant="danger"
+                  onClick={() => router.push(`/Courses/${cid}/Assignments/new`)}
+                >
+                  <FaPlus /> ADD Assignment
+                </Button>
+              )}
+
       </div>
 
       {/* LIST */}
@@ -70,23 +85,54 @@ export default function Assignments() {
         </div>
 
         <ListGroup>
-          {courseAssignments.map((a) => (
-            <ListGroup.Item key={a._id} className="d-flex justify-content-between">
-              <div className="d-flex">
-                <BsGripVertical className="me-2" />
-                <FaRegEdit className="text-success me-3" />
-                <div>
-                  <Link href={`/Courses/${cid}/Assignments/${a._id}`}>{a.title}</Link>
-                  <div className="small text-muted">
-                    Due {a.dueDate ?? "TBA"} | {a.points ?? 100} pts
-                  </div>
-                </div>
-              </div>
-              <Button variant="outline-danger" size="sm" onClick={() => { setSelected(a); setShowDelete(true); }}>
-                <FaTrash />
-              </Button>
-            </ListGroup.Item>
-          ))}
+        {courseAssignments.map((a) => (
+  <ListGroup.Item key={a._id} className="d-flex justify-content-between">
+    <div className="d-flex">
+      <BsGripVertical className="me-2" />
+
+      {/* Only faculty see edit icon */}
+      {isFaculty && (
+        <FaRegEdit
+          className="text-success me-3"
+          onClick={() => router.push(`/Courses/${cid}/Assignments/${a._id}`)}
+          style={{ cursor: "pointer" }}
+        />
+      )}
+
+
+      <div>
+      <Link 
+      href={
+        isFaculty
+          ? `/Courses/${cid}/Assignments/${a._id}`
+          : `/Courses/${cid}/Assignments/${a._id}/view`
+      }
+    >
+      {a.title}
+    </Link>
+
+        <div className="small text-muted">
+          Due {a.dueDate ?? "TBA"} | {a.points ?? 100} pts
+        </div>
+      </div>
+    </div>
+
+    {/* Only faculty see delete button */}
+    {isFaculty && (
+      <Button
+        variant="outline-danger"
+        size="sm"
+        onClick={() => {
+          setSelected(a);
+          setShowDelete(true);
+        }}
+      >
+        <FaTrash />
+      </Button>
+    )}
+  </ListGroup.Item>
+))}
+
         </ListGroup>
       </div>
 

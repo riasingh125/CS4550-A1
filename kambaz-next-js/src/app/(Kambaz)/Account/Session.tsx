@@ -11,9 +11,20 @@ export default function Session({ children }: { children: any }) {
   const fetchProfile = async () => {
     try {
       const currentUser = await client.profile();
-      dispatch(setCurrentUser(currentUser));
+      if (currentUser) {
+        dispatch(setCurrentUser(currentUser));
+        localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      } else {
+        throw new Error("No currentUser returned");
+      }
     } catch (err: any) {
-      console.error("Session fetch failed:", err);
+      console.warn("Session fetch failed, restoring from localStorage...");
+      const localUser = localStorage.getItem("currentUser");
+      if (localUser) {
+        dispatch(setCurrentUser(JSON.parse(localUser)));
+      } else {
+        console.error("No user found in localStorage.");
+      }
     } finally {
       setPending(false);
     }
