@@ -1,4 +1,3 @@
-// Kambaz/Assignments/routes.js
 import AssignmentsDao from "./dao.js";
 
 export default function AssignmentRoutes(app, db) {
