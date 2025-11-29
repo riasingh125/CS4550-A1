@@ -163,7 +163,7 @@ export default function QuizDetailsClient({
                 <button
                   className="btn btn-primary"
                   onClick={() =>
-                    router.push(`/Courses/${cid}/Quizzes/${quiz._id}/Editor`)
+                    router.push(`/Courses/${cid}/Quizzes/${quiz._id}/Editor/QuizDetailsEditor`)
                   }
                 >
                   Edit

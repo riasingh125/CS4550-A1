@@ -20,7 +20,7 @@ export default function QuizzesClient() {
   ) as { currentUser: { role?: string } | null };
 
   const role = currentUser?.role;
-  const isFacultyOrAdmin = role === "FACULTY" || role === "ADMIN";
+  const isFacultyOrAdmin = role === "FACULTY" || role === "ADMIN"; //should we add TA to this?
   const isStudent = role === "STUDENT";
 
   useEffect(() => {

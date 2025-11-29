@@ -66,3 +66,8 @@ export const getQuizzes = async (cid: string): Promise<Quiz[]> => {
   const quizzes = await findQuizzesForCourse(cid);
   return quizzes;
 };
+
+export const updateQuiz = async (qid: string, quiz: any) => {
+  const { data } = await axios.put(`${BASE}/api/quizzes/${qid}`, quiz);
+  return data;
+};

@@ -7,7 +7,7 @@ export interface Quiz {
   title: string;
   course: string;
   published: boolean;
-  
+  description?: string;
   quizType: "Graded Quiz" | "Practice Quiz" | "Graded Survey" | "Ungraded Survey";
   assignmentGroup: "Quizzes" | "Exams" | "Assignments" | "Project";
   shuffleAnswers: boolean;
@@ -62,6 +62,7 @@ const quizzesSlice = createSlice({
       const newQuiz: Quiz = {
         _id: uuidv4(),
         title: payload.title || "Untitled Quiz",
+        description: "Instructions for quiz",
         course: payload.course,
         published: false,
         quizType: "Graded Quiz",
