@@ -71,3 +71,22 @@ export const updateQuiz = async (qid: string, quiz: any) => {
   const { data } = await axios.put(`${BASE}/api/quizzes/${qid}`, quiz);
   return data;
 };
+
+export const updateQuizQuestions = async (
+  quizId: string,
+  questions: {
+    title: string;
+    points: number;
+    question: string;
+    answers: string[];
+  }[]
+) => {
+
+  const response = await axios.put(
+    `${BASE}/api/quizzes/${quizId}/questions`,
+    { questions },
+    { withCredentials: true }
+  );
+
+  return response.data;
+};

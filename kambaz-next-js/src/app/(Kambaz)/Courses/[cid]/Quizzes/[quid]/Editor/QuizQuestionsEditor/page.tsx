@@ -1,10 +1,16 @@
-"use client";
-import React from 'react';
+import { findQuizById } from "../../../client";
+import QuizQuestionsEditorClient from "./QuizQuestionsEditorClient";
 
-export default function QuizQuestionsEditor() {
-    return (
-      <div id="wd-qde">
-        <h2>Quiz Questions Editor</h2>
-        </div>
-    )
+export default async function QuizQuestionsEditorPage({
+  params,
+}: {
+  params: { cid: string; quid: string };
+}) {
+  const quiz = await findQuizById(params.quid);
+
+  if (!quiz) {
+    return <div>Quiz not found.</div>;
+  }
+
+  return <QuizQuestionsEditorClient cid={params.cid} quiz={quiz} />;
 }

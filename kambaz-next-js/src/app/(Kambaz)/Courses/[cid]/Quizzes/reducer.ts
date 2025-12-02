@@ -8,10 +8,14 @@ export interface Quiz {
   course: string;
   published: boolean;
   description?: string;
-  quizType: "Graded Quiz" | "Practice Quiz" | "Graded Survey" | "Ungraded Survey";
+  quizType:
+    | "Graded Quiz"
+    | "Practice Quiz"
+    | "Graded Survey"
+    | "Ungraded Survey";
   assignmentGroup: "Quizzes" | "Exams" | "Assignments" | "Project";
   shuffleAnswers: boolean;
-  timeLimit: number; 
+  timeLimit: number;
   multipleAttempts: boolean;
   howManyAttempts: number;
   showCorrectAnswers: string;
@@ -19,11 +23,11 @@ export interface Quiz {
   oneQuestionAtATime: boolean;
   webcamRequired: boolean;
   lockQuestionsAfterAnswering: boolean;
-  
+
   dueDate?: string;
   availableDate?: string;
   untilDate?: string;
-  
+
   points: number;
   questions: Array<{
     _id: string;
@@ -104,6 +108,12 @@ const quizzesSlice = createSlice({
     setQuizzes: (state, { payload }) => {
       state.quizzes = payload;
     },
+
+    updateQuizQuestions: (state, { payload: { quizId, questions } }) => {
+      state.quizzes = state.quizzes.map((quiz) =>
+        quiz._id === quizId ? { ...quiz, questions } : quiz
+      );
+    },
   },
 });
 
@@ -111,6 +121,7 @@ export const {
   addQuiz,
   deleteQuiz,
   updateQuiz,
+  updateQuizQuestions,
   togglePublishQuiz,
   setQuizzes,
 } = quizzesSlice.actions;
