@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -126,7 +127,10 @@ export default function QuizQuestionsEditorClient({
           </select>
         </div>
         {question.type === "FIB" && (
-          <FillInTheBlankEditor quizquestion={question} onUpdate={updateQuestion} />
+          <FillInTheBlankEditor
+            quizquestion={question}
+            onUpdate={updateQuestion}
+          />
         )}
         {question.type === "MCQ" && (
           <MultipleChoiceEditor
@@ -157,6 +161,9 @@ export default function QuizQuestionsEditorClient({
         <button className="save-quiz-button" onClick={saveQuiz}>
           Save Quiz
         </button>
+        {/* <button className="save-and-quiz-button" onClick={saveQuiz}>
+          Save Quiz
+        </button> */}
         <button className="cancel-changes-button" onClick={cancelChanges}>
           Cancel Changes
         </button>

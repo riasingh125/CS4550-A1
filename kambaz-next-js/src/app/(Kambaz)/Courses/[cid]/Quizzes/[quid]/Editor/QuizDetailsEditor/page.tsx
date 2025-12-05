@@ -1,4 +1,4 @@
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { findQuizById } from "../../../client";
 import QuizDetailsEditorClient from "./QuizDetailsEditorClient";
 
