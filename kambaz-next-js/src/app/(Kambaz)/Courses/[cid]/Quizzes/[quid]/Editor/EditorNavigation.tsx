@@ -6,7 +6,7 @@ import { useParams, usePathname } from "next/navigation";
 export default function EditorNavigation() {
   const { cid, quid } = useParams();
   const pathname = usePathname();
-
+// deploy
   return (
     <Nav variant="pills">
       <NavItem>
