@@ -49,6 +49,14 @@ export default function QuizDetailsEditorClient({
     router.push(`/Courses/${cid}/Quizzes/${quiz._id}`);
   };
 
+  const saveAndPublishQuiz = async () => {
+    await client.updateQuiz(quiz._id, {
+      ...form,
+      published: true,
+    });
+
+    router.push(`/Courses/${cid}/Quizzes`);
+  };
   return (
     <div className="container mt-4">
       <h2>Edit Quiz Details</h2>
@@ -239,12 +247,19 @@ export default function QuizDetailsEditorClient({
         <div className="form-group">
           <button
             className="cancel-button"
-            onClick={() => router.push(`/Courses/${cid}/Quizzes/${quiz._id}`)}
+            onClick={() => router.push(`/Courses/${cid}/Quizzes`)}
           >
             Cancel
           </button>
           <button className="save-button" onClick={saveQuiz}>
             Save
+          </button>
+          <button
+            className="publish-button"
+            onClick={saveAndPublishQuiz}
+            style={{ marginLeft: "10px", backgroundColor: "green", color: "white" }}
+          >
+            Save & Publish
           </button>
         </div>
       </div>

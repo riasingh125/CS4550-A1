@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+
 import { v4 as uuidv4 } from "uuid";
 import "./QuizQuestionsEditor.css";
 import { Quiz } from "../../../reducer";
@@ -10,6 +11,7 @@ import * as client from "../../../client";
 import FillInTheBlankEditor from "./FillInTheBlankEditor";
 import MultipleChoiceEditor from "./MultipleChoiceEditor";
 import TrueFalseEditor from "./TrueFalseEditor";
+
 
 interface Question {
   _id: string;
@@ -27,6 +29,7 @@ export default function QuizQuestionsEditorClient({
   cid: string;
   quiz: Quiz;
 }) {
+  const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>(
     (quiz.questions as Question[])?.map((q) => ({
       ...q,
@@ -48,8 +51,8 @@ export default function QuizQuestionsEditorClient({
         newQuestionType === "MCQ"
           ? ["Option 1", "Option 2"]
           : newQuestionType === "TF"
-          ? ["True", "False"]
-          : [],
+            ? ["True", "False"]
+            : [],
     };
     setQuestions([...questions, newQuestion]);
   };
@@ -83,8 +86,45 @@ export default function QuizQuestionsEditorClient({
       console.log("Payload being sent:", payload); // Log the payload for debugging
       await client.updateQuiz(quiz._id, payload); // Send the payload to the backend
       alert("Quiz saved successfully!");
+      router.push(`/Courses/${cid}/Quizzes/${quiz._id}`);
     } catch (error) {
       console.error("Failed to save quiz:", error);
+    }
+  };
+
+  const saveAndPublishQuiz = async () => {
+    try {
+      const payload = {
+        _id: quiz._id,
+        course: quiz.course,
+        title: quiz.title,
+        published: true, // 🔥 ALWAYS TRUE (stays true if already true)
+        quizType: quiz.quizType,
+        assignmentGroup: quiz.assignmentGroup,
+        shuffleAnswers: quiz.shuffleAnswers,
+        timeLimit: quiz.timeLimit,
+        multipleAttempts: quiz.multipleAttempts,
+        howManyAttempts: quiz.howManyAttempts,
+        showCorrectAnswers: quiz.showCorrectAnswers,
+        accessCode: quiz.accessCode,
+        oneQuestionAtATime: quiz.oneQuestionAtATime,
+        webcamRequired: quiz.webcamRequired,
+        lockQuestionsAfterAnswering: quiz.lockQuestionsAfterAnswering,
+        dueDate: quiz.dueDate,
+        availableDate: quiz.availableDate,
+        untilDate: quiz.untilDate,
+        points: questions.reduce((sum, q) => sum + q.points, 0),
+        questions,
+        description: quiz.description,
+      };
+
+      await client.updateQuiz(quiz._id, payload);
+
+
+      router.push(`/Courses/${cid}/Quizzes`);
+
+    } catch (error) {
+      console.error("Failed to save & publish quiz:", error);
     }
   };
 
@@ -161,11 +201,20 @@ export default function QuizQuestionsEditorClient({
         <button className="save-quiz-button" onClick={saveQuiz}>
           Save Quiz
         </button>
+        <button
+          className="save-and-publish-button"
+          onClick={saveAndPublishQuiz}
+        >
+          Save & Publish
+        </button>
         {/* <button className="save-and-quiz-button" onClick={saveQuiz}>
           Save Quiz
         </button> */}
-        <button className="cancel-changes-button" onClick={cancelChanges}>
-          Cancel Changes
+        <button
+          className="cancel-changes-button"
+          onClick={() => router.push(`/Courses/${cid}/Quizzes`)}
+        >
+          Cancel
         </button>
       </div>
     </div>
