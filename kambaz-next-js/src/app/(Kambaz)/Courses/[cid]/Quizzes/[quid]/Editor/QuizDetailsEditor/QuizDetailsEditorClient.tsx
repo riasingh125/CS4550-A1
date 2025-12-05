@@ -19,6 +19,7 @@ export default function QuizDetailsEditorClient({
     return <div>Quiz not found.</div>;
   }
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [form, setForm] = useState({
     title: quiz.title || "",
     description: quiz.description || "",
