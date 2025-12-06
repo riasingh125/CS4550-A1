@@ -163,16 +163,18 @@ export default function QuizDetailsClient({
                 <button
                   className="btn btn-primary"
                   onClick={() =>
-                    router.push(`/Courses/${cid}/Quizzes/${quiz._id}/Editor/QuizDetailsEditor`)
+                    router.push(
+                      `/Courses/${cid}/Quizzes/${quiz._id}/Editor/QuizDetailsEditor`
+                    )
                   }
                 >
                   Edit
                 </button>
                 <button
                   className="btn btn-secondary"
-                  onClick={() => {
-                    alert("Preview functionality not implemented yet.");
-                  }}
+                  onClick={() =>
+                    router.push(`/Courses/${cid}/Quizzes/${quiz._id}/Preview`)
+                  }
                 >
                   Preview
                 </button>
