@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Quiz } from "../reducer";
+import { Quiz } from "../../reducer";
 
 export default function QuizPreviewClient({ quiz }: { quiz: Quiz }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -10,19 +10,27 @@ export default function QuizPreviewClient({ quiz }: { quiz: Quiz }) {
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
 
+  if (!quiz.questions || quiz.questions.length === 0) {
+    return (
+      <div className="container mt-4">
+        <h2>Quiz Preview: {quiz.title}</h2>
+        <p>No questions in this quiz yet.</p>
+      </div>
+    );
+  }
+
+  
   const handleAnswerChange = (questionId: string, answer: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: answer }));
   };
 
   const handleSubmit = () => {
     let calculatedScore = 0;
-    quiz.questions.forEach(
-      (question: { _id: string; points: number; correctAnswer: string }) => {
-        if (answers[question._id] === question.correctAnswer) {
-          calculatedScore += question.points;
-        }
+    quiz.questions.forEach((question) => {
+      if (answers[question._id] === question.correctAnswer) {
+        calculatedScore += question.points;
       }
-    );
+    });
     setScore(calculatedScore);
   };
 

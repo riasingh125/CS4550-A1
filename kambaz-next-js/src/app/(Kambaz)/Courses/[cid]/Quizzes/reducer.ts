@@ -27,16 +27,17 @@ export interface Quiz {
   dueDate?: string;
   availableDate?: string;
   untilDate?: string;
-
   points: number;
   questions: Array<{
     _id: string;
     type: "MCQ" | "TF" | "FIB";
     title: string;
     points: number;
+    question?: string;
+    correctAnswer?: string;
+    answers?: string[];
   }>;
 }
-
 interface QuizzesState {
   quizzes: Quiz[];
 }

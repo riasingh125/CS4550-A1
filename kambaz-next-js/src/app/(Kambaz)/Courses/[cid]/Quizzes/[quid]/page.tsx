@@ -4,9 +4,10 @@ import QuizDetailsClient from "./QuizDetailsClient";
 export default async function QuizDetailsPage({
   params,
 }: {
-  params: { cid: string; quid: string };
+  params: Promise<{ cid: string; quid: string }>;
 }) {
-  const quiz = await findQuizById(params.quid);
+  const { cid, quid } = await params;
+  const quiz = await findQuizById(quid);
 
-  return <QuizDetailsClient cid={params.cid} quiz={quiz} />;
+  return <QuizDetailsClient cid={cid} quiz={quiz} />;
 }
