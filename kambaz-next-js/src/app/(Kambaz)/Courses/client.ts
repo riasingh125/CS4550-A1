@@ -10,6 +10,7 @@ export const deleteModule = async (moduleId: string) => {
  return response.data;
 };
 
+
 export const fetchAllCourses = async () => {
   const { data } = await axios.get(COURSES_API);
   return data;
