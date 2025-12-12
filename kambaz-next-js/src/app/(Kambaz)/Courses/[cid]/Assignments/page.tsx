@@ -1,58 +1,151 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { Button, Form, InputGroup, ListGroup, Modal } from "react-bootstrap";
+import { FaSearch, FaPlus, FaRegEdit, FaTrash } from "react-icons/fa";
+import { BsGripVertical, BsThreeDotsVertical } from "react-icons/bs";
+import { IoMdArrowDropdown } from "react-icons/io";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "../../../store";
+
+import { setAssignments, deleteAssignment as deleteRedux } from "./reducer";
+import * as client from "./client";
 
 export default function Assignments() {
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const { cid } = useParams<{ cid: string }>();
+
+  const { assignments } = useSelector(
+    (state: RootState) => state.assignmentsReducer
+  );
+
+  const currentUser = useSelector(
+    (state: RootState) => state.accountReducer.currentUser as { role: string } | null
+  );
+  const isFaculty =
+    currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
+
+  console.log("Current UserRRRRRRRR:", currentUser);
+
+  useEffect(() => {
+    const load = async () => {
+      const data = await client.findAssignmentsForCourse(cid!);
+      dispatch(setAssignments(data));
+    };
+    load();
+  }, [cid]);
+
+  const [showDelete, setShowDelete] = useState(false);
+  const [selected, setSelected] = useState<any>(null);
+
+  const confirmDelete = async () => {
+    await client.deleteAssignment(selected._id);
+    dispatch(deleteRedux(selected._id));
+    setShowDelete(false);
+  };
+
+  console.log("IS FACULTY:", isFaculty);
+
+  const courseAssignments = assignments.filter((a) => a.course === cid);
+
   return (
-    <div id="wd-assignments">
-      <input
-        placeholder="Search for Assignments"
-        id="wd-search-assignment"
-      />
-      &nbsp;&nbsp;
-      <button id="wd-add-assignment-group">+ Group</button>
-      &nbsp;&nbsp;
-      <button id="wd-add-assignment">+ Assignment</button>
+    <div id="wd-assignments" className="p-3">
+      {/* TOP CONTROLS */}
+      <div className="d-flex justify-content-between mb-3">
+        <InputGroup style={{ width: 300 }}>
+          <InputGroup.Text><FaSearch /></InputGroup.Text>
+          <Form.Control placeholder="Search" />
+        </InputGroup>
 
-      <h3 id="wd-assignments-title">
-        ASSIGNMENTS 40% of Total <button>+</button>
-      </h3>
+        
 
-      <ul id="wd-assignment-list">
-        <li className="wd-assignment-list-item">
-          <Link href="/Courses/1234/Assignments/123" className="wd-assignment-link">
-            A1 - ENV + HTML
-          </Link>
-          <div>
-            Multiple Modules | <b>Not available until</b> May 6 at 12:00am |
-          </div>
-          <div>
-            <b>Due</b> May 13 at 11:59pm | 100 pts
-          </div>
-        </li>
+        {isFaculty && (
+                <Button
+                  variant="danger"
+                  onClick={() => router.push(`/Courses/${cid}/Assignments/new`)}
+                >
+                  <FaPlus /> ADD Assignment
+                </Button>
+              )}
 
-        <li className="wd-assignment-list-item">
-          <Link href="/Courses/1234/Assignments/124" className="wd-assignment-link">
-            A2 - CSS + BOOTSTRAP
-          </Link>
-          <div>
-            Multiple Modules | <b>Not available until</b> May 13 at 12:00am |
-          </div>
-          <div>
-            <b>Due</b> May 20 at 11:59pm | 100 pts
-          </div>
-        </li>
+      </div>
 
-        <li className="wd-assignment-list-item">
-          <Link href="/Courses/1234/Assignments/125" className="wd-assignment-link">
-            A3 - JAVASCRIPT + REACT
-          </Link>
+      {/* LIST */}
+      <div className="border rounded">
+        <div className="d-flex justify-content-between p-3">
           <div>
-            Multiple Modules | <b>Not available until</b> May 20 at 12:00am |
+            <BsGripVertical className="me-2" />
+            <IoMdArrowDropdown className="me-2" />
+            <strong>ASSIGNMENTS</strong>
           </div>
-          <div>
-            <b>Due</b> May 27 at 11:59pm | 100 pts
-          </div>
-        </li>
-      </ul>
+          <BsThreeDotsVertical />
+        </div>
+
+        <ListGroup>
+        {courseAssignments.map((a) => (
+  <ListGroup.Item key={a._id} className="d-flex justify-content-between">
+    <div className="d-flex">
+      <BsGripVertical className="me-2" />
+
+      {/* Only faculty see edit icon */}
+      {isFaculty && (
+        <FaRegEdit
+          className="text-success me-3"
+          onClick={() => router.push(`/Courses/${cid}/Assignments/${a._id}`)}
+          style={{ cursor: "pointer" }}
+        />
+      )}
+
+
+      <div>
+      <Link 
+      href={
+        isFaculty
+          ? `/Courses/${cid}/Assignments/${a._id}`
+          : `/Courses/${cid}/Assignments/${a._id}/view`
+      }
+    >
+      {a.title}
+    </Link>
+
+        <div className="small text-muted">
+          Due {a.dueDate ?? "TBA"} | {a.points ?? 100} pts
+        </div>
+      </div>
+    </div>
+
+    {/* Only faculty see delete button */}
+    {isFaculty && (
+      <Button
+        variant="outline-danger"
+        size="sm"
+        onClick={() => {
+          setSelected(a);
+          setShowDelete(true);
+        }}
+      >
+        <FaTrash />
+      </Button>
+    )}
+  </ListGroup.Item>
+))}
+
+        </ListGroup>
+      </div>
+
+      <Modal show={showDelete} onHide={() => setShowDelete(false)} centered>
+        <Modal.Header closeButton><Modal.Title>Delete Assignment</Modal.Title></Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete <strong>{selected?.title}</strong>?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => setShowDelete(false)}>Cancel</Button>
+          <Button variant="danger" onClick={confirmDelete}>Delete</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

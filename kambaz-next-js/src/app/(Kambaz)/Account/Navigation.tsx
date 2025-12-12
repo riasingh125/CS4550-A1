@@ -1,13 +1,19 @@
+"use client";
 import Link from "next/link";
-export default function KambazNavigation() {
-  return (
-    <div id="wd-kambaz-navigation">
-      <a href="https://www.northeastern.edu/" id="wd-neu-link" target="_blank">Northeastern</a><br/>
-      <Link href="/Account" id="wd-account-link">Account</Link><br/>
-      <Link href="/Dashboard" id="wd-dashboard-link">Dashboard</Link><br/>
-      <Link href="/Dashboard" id="wd-course-link">Courses</Link><br/>
-      <Link href="/Calendar" id="wd-calendar-link">Calendar</Link><br/>
-      <Link href="/Inbox" id="wd-inbox-link">Inbox</Link><br/>
-      <Link href="/Labs" id="wd-labs-link">Labs</Link><br/>
-    </div>
+import { usePathname } from "next/navigation";
+import { Nav, NavItem, NavLink } from "react-bootstrap";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
+export default function AccountNavigation() {
+  const { currentUser } = useSelector((state: RootState) => state.accountReducer);
+  const links = currentUser ? ["Profile"] : ["Signin", "Signup"];
+ const pathname = usePathname();
+ return (
+   <Nav variant="pills">
+     {links.map((link) => (
+       <NavItem key={link}>
+         <NavLink as={Link} href={link} active={pathname.endsWith(link.toLowerCase())}>
+           {link} </NavLink> </NavItem>
+     ))}
+   </Nav>
 );}

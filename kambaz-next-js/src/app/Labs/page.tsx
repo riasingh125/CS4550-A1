@@ -17,6 +17,24 @@ export default function Labs() {
          <Link href="/Labs/Lab3" id="wd-lab3-link">
            Lab 3: JavaScript Fundamentals </Link>
        </li>
+       <li>
+         <Link href="/Labs/Lab4" id="wd-lab4-link">
+           Lab 4: Maintaining State in React Applications </Link>
+       </li>
+       <li>
+         <Link href="/Labs/Lab5" id="wd-lab5-link">
+           Lab 5: Implementing RESTful Web APIs with Express.js </Link>
+       </li>
+       <li>
+          <a
+            href="https://github.com/riasingh125/CS4550-A1"
+            id="wd-github"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub Repository
+          </a>
+        </li>
      </ul>
    </div>
 );}
